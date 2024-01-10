@@ -1,0 +1,4 @@
+
+graph TD
+    A[User] -->|Opens app| B(Single-Page App)
+    B -->|Loads initial page| C(Notes Dashboard)
