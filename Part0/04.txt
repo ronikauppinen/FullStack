@@ -22,3 +22,32 @@ sequenceDiagram
     User-->>Page: Clicks Save button
     Page-->>User: Creates new note
     deactivate server
+
+browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/notes
+Käyttäjä kirjoittaa tekstin input kenttään 
+browser->>browser: Tallennettu teksti talletetaan väliaikaiseen muuttujaan
+    
+    browser->>browser: Päivämäärän haku ja tallennus väliaikaismuuttujaan
+    
+    browser->>browser: Luo JSON-objektin muistiinpanosta ja päivämäärästä
+    
+    browser->>browser: Lähettää POST-pyynnön palvelimelle JSON-objektin kanssa
+    
+    activate browser
+    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note
+    activate server
+    server->>database: Tallentaa uuden muistiinpanon tietokantaan
+    deactivate server
+    server-->>browser: Vastauskoodi 201 OK
+    deactivate browser
+    
+    Note right of browser: Palvelimen vastauksen jälkeen suoritetaan callback-funktio
+    
+    browser->>browser: Tyhjentää muistiinpanokentän
+    browser->>browser: Hakee uusimmat muistiinpanot palvelimelta
+    activate browser
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: Päivitetty lista muistiinpanoista
+    deactivate server
+    deactivate browser
