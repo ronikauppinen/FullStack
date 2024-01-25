@@ -1,6 +1,22 @@
-graph TD
-    A[User] -->|Opens app| B(Single-Page App)
-    B -->|Loads Notes Dashboard| C(Notes Dashboard)
-    C -->|Clicks on New Note| D(Create New Note)
-    D -->|Enters content| C
-    C -->|Displays new note| E(New Note Created)
+sequenceDiagram
+browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa/notes
+User writes in input 
+browser->>browser: Save the entered text in temporary variable 
+browser->>browser: Fetch and save the date in the temporary variable
+browser->>browser: Create a JSON object from the note and date
+browser->>browser: Send a POST request to the server with the JSON object
+activate browser
+browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/spa/new_note
+activate server
+server->>database: Save the new note to the database
+deactivate server
+server-->>browser: Response OK
+deactivate browser
+browser->>browser: Clear the note field
+browser->>browser: Fetch the latest notes from the server
+activate browser
+browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa/data.json
+activate server
+server-->>browser: Updated list of notes
+deactivate server
+deactivate browser

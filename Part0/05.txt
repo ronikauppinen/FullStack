@@ -1,4 +1,14 @@
-
-graph TD
-    A[User] -->|Opens app| B(Single-Page App)
-    B -->|Loads initial page| C(Notes Dashboard)
+sequenceDiagram
+participant browser
+participant server
+browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa
+activate server
+server-->>browser: HTML, CSS, JavaScript
+deactivate server
+browser->>browser: User goes on the Single-Page App
+browser->>server: API requests for notes data
+activate server
+server->>database: Retrieve notes data from the database
+deactivate server
+server-->>browser: Notes data
+browser->>browser: Display and interact with notes in the App
