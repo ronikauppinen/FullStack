@@ -1,6 +1,6 @@
 sequenceDiagram
 browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/spa/notes
-User writes in input 
+User writes in input field
 browser->>browser: Save the entered text in temporary variable 
 browser->>browser: Fetch and save the date in the temporary variable
 browser->>browser: Create a JSON object from the note and date
