@@ -1,4 +1,20 @@
-import React, { useState } from 'react';
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from 'react';
+import services from './services/persons';
+import './index.css'
+
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='error'>
+      {message}
+    </div>
+  )
+}
 
 const Filter = ({ searchTerm, handleSearchChange }) => (
   <div>
@@ -26,34 +42,46 @@ const PersonForm = ({
   </form>
 );
 
-const Persons = ({ persons, searchTerm }) => {
+const Persons = ({ persons, searchTerm, setPersons }) => {
+  const handleDelete = (id, name) => {
+    const confirmed = window.confirm('Delete ' + name);
+    
+    if (confirmed) {
+      services.deletePerson(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id));
+          console.log(name + ' deleted from the phonebook.');
+        })
+        .catch(error => {
+          console.error('Error deleting data:' + error);
+        });
+    }
+  };
   const filteredPersons = persons.filter((person) =>
     person.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   return (
     <div>
       {filteredPersons.map((person) => (
-        <p key={person.id}>
-          {person.name} - {person.number}
-        </p>
+        <div key={person.id}>
+          <p>
+            {person.name} - {person.number}
+          </p>
+          <button onClick={() => handleDelete(person.id, person.name)}>
+            Delete
+          </button>
+        </div>
       ))}
     </div>
   );
 };
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 },
-    { name: 'Saul Goodman', number: '(505) 503-4455', id: 5 },
-  ]);
-
+  const [persons, setPersons] = useState([]);
   const [Name, setName] = useState('');
   const [Number, setNumber] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleNameChange = (event) => {
     setName(event.target.value);
@@ -70,21 +98,70 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault();
 
-    if (persons.some((person) => person.name === Name)) {
-      alert(Name + ' is already in the phonebook');
-      console.log(Name + ' is already in the phonebook :(');
-    } else {
-      const newPerson = { name: Name, number: Number, id: persons.length + 1 };
-      setPersons([...persons, newPerson]);
-      setName('');
-      setNumber('');
-      console.log('Hooray!! ' + Name + ' is added to the phonebook!!');
+    const existingPerson = persons.find((person) => person.name === Name);
+
+    if (existingPerson) {
+      const confirmed = window.confirm(
+        Name + ' is already added to phonebook, replace the old number with a new one?'
+      );
+  
+      if (confirmed) {
+        const updatedPerson = { ...existingPerson, number: Number };
+  
+        services.updatePerson(existingPerson.id, updatedPerson)
+          .then(() => {
+            setPersons(persons.map(person =>
+              person.id === existingPerson.id ? updatedPerson : person
+            ));
+            setName('');
+            setNumber('');
+            console.log(Name + "'s phone number updated.");
+            setErrorMessage(
+              Name + "'s phone number updated."
+            )
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 5000)
+          })
+          .catch(error => {
+            console.error('Error updating data:' + error);
+          });
+      }
+    } else {const newPerson = { id: (persons.length + 1).toString(), name: Name, number: Number };
+
+      services.addPerson(newPerson)
+        .then(addedPerson => {
+          setPersons([...persons, addedPerson]);
+          setName('');
+          setNumber('');
+          console.log('Hooray!! ' + Name + ' is added to the phonebook!!');
+          setErrorMessage(
+            'Added ' + Name
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+        })
+        .catch(error => {
+          console.error('Error saving data:' + error);
+        });
     }
   };
+
+  useEffect(() => {
+    services.getAllPersons()
+      .then(initialPersons => {
+        setPersons(initialPersons);
+      })
+      .catch(error => {
+        console.error('Error fetching data:' + error);
+      });
+  }, []);
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={errorMessage} />
 
       <Filter searchTerm={searchTerm} handleSearchChange={handleSearchChange} />
 
@@ -100,7 +177,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons persons={persons} searchTerm={searchTerm} />
+      <Persons persons={persons} searchTerm={searchTerm} setPersons={setPersons} />
     </div>
   );
 };
