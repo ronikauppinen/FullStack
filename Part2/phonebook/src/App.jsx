@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import services from './services/persons';
 import './index.css'
 
+//Notification 
 const Notification = ({ message }) => {
   if (message === null) {
     return null
@@ -16,12 +17,14 @@ const Notification = ({ message }) => {
   )
 }
 
+//Search
 const Filter = ({ searchTerm, handleSearchChange }) => (
   <div>
     Filter shown with <input value={searchTerm} onChange={handleSearchChange} />
   </div>
 );
 
+//Form to add person or change number
 const PersonForm = ({
   Name,
   Number,
@@ -162,11 +165,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Notification message={errorMessage} />
-
       <Filter searchTerm={searchTerm} handleSearchChange={handleSearchChange} />
-
       <h3>Add a new</h3>
-
       <PersonForm
         Name={Name}
         Number={Number}
@@ -174,9 +174,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
         addPerson={addPerson}
       />
-
       <h3>Numbers</h3>
-
       <Persons persons={persons} searchTerm={searchTerm} setPersons={setPersons} />
     </div>
   );
