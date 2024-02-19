@@ -4,6 +4,14 @@ const cors = require('cors');
 const app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT || 3001;
+
+// Define a route for the root URL
+app.get('/', (req, res) => {
+  res.send('Welcome to the phonebook backend!');
+});
+
+
 app.use(cors());
 
 //Custom token
@@ -106,7 +114,7 @@ app.post('/api/persons', (req, res) => {
   res.json(newEntry);
 });
 
-const PORT = process.env.PORT || 3001;
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
